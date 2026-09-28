@@ -94,3 +94,42 @@ function renderResults(items) {
     resultsContainer.appendChild(link);
   });
 }
+async function searchImages(query) {
+  const statusElement = document.getElementById("status");
+  const resultsContainer = document.getElementById("results");
+
+  // Clear previous results grid
+  resultsContainer.innerHTML = "";
+
+  // 1. LOADING STATE: Show loading message or spinner BEFORE fetch begins
+  statusElement.innerHTML = "Searching...";
+
+  try {
+    const response = await fetch(`YOUR_WIKIMEDIA_OR_API_URL_HERE`);
+
+    // Check for HTTP errors (e.g., 404, 500)
+    if (!response.ok) {
+      throw new Error(`HTTP Error status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    const items = Object.values(data.query.pages); // Adjust based on your API response structure
+
+    // 2. EMPTY STATE: Check if the response array is empty
+    if (!items || items.length === 0) {
+      statusElement.textContent = "No results for that word. Try another search.";
+      return;
+    }
+
+    // 3. RESULTS STATE: Show result count and render images
+    statusElement.textContent = `Showing ${items.length} results for "${query}".`;
+    renderImages(items);
+
+  } catch (error) {
+    // 4. ERROR STATE: Show user-friendly error message on network/fetch failure
+    console.error("Search failed:", error);
+    statusElement.textContent = "Something went wrong. Please try again.";
+  }
+}
+const totalResults = items.length;
+statusElement.textContent = `Showing ${totalResults} results for "${query}".`;
